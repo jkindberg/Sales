@@ -9,6 +9,7 @@ output:
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(knitr)
+library(DT)
 ```
 
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
@@ -24,6 +25,7 @@ This is a sidebar that can have buttons or filters
 
 View1
 =======================================================================
+
 
 Column {data-width=600}
 -----------------------------------------------------------------------
@@ -89,6 +91,12 @@ ggplotly(web_series)
 
 
 ### Chart D
+
+```{r}
+datatable(website)
+```
+
+
 
 View2
 =======================================================================
