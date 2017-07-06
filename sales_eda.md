@@ -89,6 +89,26 @@ Add columns for other intervals of each date
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
 
 
+### 3x4 vs non column
+<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
+
+
+```
+
+       Pivot Choice   Pivot Choice 3x4         Pivot Deluxe 
+                202                 461                  19 
+   Pivot Deluxe 3x4       Pivot Economy  Pivot Economy 3x4  
+                 83                 199                 293 
+     Pivot Standard Pivot Standard 3x4  
+                 35                  44 
+```
+
+
+
+<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
+
+
+
 ### Count column for aggregation
 
 for ggplot2
@@ -166,7 +186,7 @@ $ State     <chr> "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL", "AL"...
 
 ```
 Observations: 1,336
-Variables: 27
+Variables: 29
 $ Agent           <chr> "America's Health Advisors Insurance Agency - ...
 $ ID              <dbl> 672170522, 672170491, 672170006, 672169745, 67...
 $ Policy          <chr> "STA10045799", "STA10037359", "STA10027830", "...
@@ -192,6 +212,8 @@ $ Inactive Reason <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
 $ month_created   <date> 2017-07-01, 2017-07-01, 2017-06-01, 2017-06-0...
 $ week_created    <date> 2017-06-26, 2017-06-26, 2017-06-26, 2017-06-2...
 $ month_active    <date> 2017-08-01, 2017-07-01, 2017-07-01, 2017-07-0...
+$ three_four      <chr> "3x4", "3x4", "3x4", "3x4", "3x4", "3x4", "3x4...
+$ product_level   <chr> "Deluxe", "Economy", "Choice", "Choice", "Delu...
 $ Count           <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
 $ region          <chr> "Pennsylvania", "Arizona", "Pennsylvania", "Ar...
 ```
@@ -212,16 +234,18 @@ $ region          <chr> "Pennsylvania", "Arizona", "Pennsylvania", "Ar...
     0.000000000     0.000000000     0.000000000     0.000000000 
            City           State         Product         Created 
     0.000000000     0.000000000     0.000000000     0.000000000 
-  month_created    week_created           Count          region 
+  month_created    week_created      three_four   product_level 
     0.000000000     0.000000000     0.000000000     0.000000000 
-          Phone           Email         Benefit         Monthly 
-    0.000748503     0.001497006     0.002994012     0.002994012 
-         Amount        One-time          Method          Active 
-    0.002994012     0.007485030     0.015718563     0.055389222 
-   month_active   First Billing            Paid    Next Billing 
-    0.055389222     0.089820359     0.163922156     0.412425150 
-  Date Inactive Inactive Reason            Hold 
-    0.684880240     0.711826347     0.948353293 
+          Count          region           Phone           Email 
+    0.000000000     0.000000000     0.000748503     0.001497006 
+        Benefit         Monthly          Amount        One-time 
+    0.002994012     0.002994012     0.002994012     0.007485030 
+         Method          Active    month_active   First Billing 
+    0.015718563     0.055389222     0.055389222     0.089820359 
+           Paid    Next Billing   Date Inactive Inactive Reason 
+    0.163922156     0.412425150     0.684880240     0.711826347 
+           Hold 
+    0.948353293 
 ```
 
 
@@ -233,20 +257,22 @@ $ region          <chr> "Pennsylvania", "Arizona", "Pennsylvania", "Ar...
 
 
 ```
-          Count        One-time          Method         Product 
-              1               2               7               8 
-  month_created         Benefit            Paid    month_active 
-              8               9              10              10 
-Inactive Reason           State          region    week_created 
-             20              26              26              29 
-           Hold    Next Billing           Agent   Date Inactive 
-             42              67              72             153 
-        Created          Active   First Billing            City 
-            159             174             183             929 
-        Monthly          Amount           Email           Phone 
-           1214            1249            1258            1262 
-           Name              ID          Policy 
-           1294            1326            1336 
+          Count        One-time      three_four   product_level 
+              1               2               2               4 
+         Method         Product   month_created         Benefit 
+              7               8               8               9 
+           Paid    month_active Inactive Reason           State 
+             10              10              20              26 
+         region    week_created            Hold    Next Billing 
+             26              29              42              67 
+          Agent   Date Inactive         Created          Active 
+             72             153             159             174 
+  First Billing            City         Monthly          Amount 
+            183             929            1214            1249 
+          Email           Phone            Name              ID 
+           1258            1262            1294            1326 
+         Policy 
+           1336 
 ```
 
 
@@ -256,12 +282,12 @@ Inactive Reason           State          region    week_created
 ### Distribution of sales Amount ($ shown for each sale/account)
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-23-1.png" width="576" data-figure-id=fig1 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-20-1.png" width="576" data-figure-id=fig1 />
 
 
 ### Number of sales by product
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-24-1.png" width="576" data-figure-id=fig2 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-21-1.png" width="576" data-figure-id=fig2 />
 
 ### Sales volume by product (Amount)
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
@@ -271,26 +297,26 @@ Inactive Reason           State          region    week_created
 ### Number of sales by benefit
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-26-1.png" width="576" data-figure-id=fig3 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-23-1.png" width="576" data-figure-id=fig3 />
 
 ### **STM Web Sales data  - Jan-Jun 2017**
 
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="1440"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-27-1.png" width="576" data-figure-id=fig4 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-24-1.png" width="576" data-figure-id=fig4 />
 
 ### Web Sales Y variable scatter plots
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-28-1.png" width="576" data-figure-id=fig5 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-25-1.png" width="576" data-figure-id=fig5 />
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-29-1.png" width="576" data-figure-id=fig6 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-26-1.png" width="576" data-figure-id=fig6 />
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-30-1.png" width="576" data-figure-id=fig7 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-27-1.png" width="576" data-figure-id=fig7 />
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-31-1.png" width="576" data-figure-id=fig8 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-28-1.png" width="576" data-figure-id=fig8 />
 
 
 ## Sales by state
@@ -383,26 +409,26 @@ This section contains graphs they can potentially be interested in based on the 
 **The data is from 12/2016 - 07/2017**
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-35-1.png" width="576" data-figure-id=fig9 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-32-1.png" width="576" data-figure-id=fig9 />
 
 ## Sales ($) by week (more granular)
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-36-1.png" width="576" data-figure-id=fig10 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-33-1.png" width="576" data-figure-id=fig10 />
 
 ## Number of sales/accounts by week
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-37-1.png" width="576" data-figure-id=fig11 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-34-1.png" width="576" data-figure-id=fig11 />
 
 ## Sales ($) by state for June (not working yet)
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-38-1.png" width="576" data-figure-id=fig12 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-35-1.png" width="576" data-figure-id=fig12 />
 
 ## States as a proportion of TOTAL sales/accounts over time 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-39-1.png" width="576" data-figure-id=fig13 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-36-1.png" width="576" data-figure-id=fig13 />
 
 # Notes, impressions
 
@@ -433,5 +459,5 @@ Removed Web data outlier on 1/31/2017 to better see overall trend of web sales i
 Here are the graphs with the outlier put back 
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="960"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-41-1.png" width="576" data-figure-id=fig14 />
+<img src="sales_dashboard_files/figure-html/unnamed-chunk-38-1.png" width="576" data-figure-id=fig14 />
 
