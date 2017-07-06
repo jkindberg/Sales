@@ -1,0 +1,323 @@
+---
+title: "sales data EDA"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(reshape2)
+library(ggplot2)
+library(maps)
+```
+
+# Read, process data
+
+```{r}
+# load raw data sheet
+sales <- read_excel("2017 Sales Summary.xlsx",
+                    sheet = "Raw Data From Adroit")
+
+# web sales data sheet
+web <- read_excel("2017 Sales Summary.xlsx",
+                  sheet = "STM Web Sales Summary",
+                  col_names = F)
+```
+
+View before doing anything to raw sales data
+```{r}
+glimpse(sales)
+```
+
+```{r}
+# filter data to remove completely NA rows
+sales <- sales[rowSums(is.na(sales)) != ncol(sales),]
+```
+
+### Web data needs reformatting to be a dataframe
+
+```{r}
+web[is.na(web)] <- 0
+names(web) <- web[2,] %>% unlist
+names(web)[names(web)=="0"] <- unlist(web[1,])[names(web)=="0"]
+
+web <- web[-(1:2),]
+```
+
+Date column needs to be cleaned up
+
+```{r}
+web$Date <- as.numeric(web$Date)
+web <- web[!is.na(web$Date),]
+
+web$Date <- as.Date(web$Date,
+                    origin = "1899-12-30")
+```
+
+### Website-specific dataframe creation
+```{r}
+website <- web[names(web)[c(1, 63:70)]]
+
+change <- names(website)[-1]
+for(x in seq_along(change)){
+  website[[change[x]]] <- as.numeric(website[[change[x]]])}
+names(website)[names(website)=="TOTAL"] <- "Total Web Sales"
+website <- website %>% filter(Date < "2017-07-03")
+glimpse(website)
+```
+
+## Add columns and features to raw data
+
+### Dates
+
+Add columns for other intervals of each date
+
+```{r}
+sales$month_created <- as.Date(cut(sales$Created,
+  breaks = "month"))
+
+sales$week_created <- as.Date(cut(sales$Created,
+  breaks = "week"))
+
+sales$month_active <- as.Date(cut(sales$Active,
+  breaks = "month"))
+
+
+```
+
+### Count column for aggregation
+
+for ggplot2
+
+```{r}
+sales$Count <- rep(1, nrow(sales))
+```
+
+
+### Mapping state names for plotting purposes
+
+ggplot2 requires the long form name of a state but this dataset only has state acronyms. I'm merging the data to **state.csv** in order to make graphs later
+
+```{r, message=FALSE, warning=FALSE}
+state_mapping <- read_csv("states.csv")
+names(state_mapping) <- c("region","State") # for merge
+state_mapping$region <- tolower(state_mapping$region) #for merge
+head(state_mapping)
+```
+
+```{r}
+sales <- left_join(sales, state_mapping)
+
+substr(sales$region, 1,1) <- toupper(substr(sales$region,1,1)) # nice
+```
+
+
+The state data is latitute and longitude information for states - meta data needed for plots
+
+```{r, message=FALSE, warning=FALSE}
+state_data <- ggplot2::map_data("state")
+glimpse(state_data)
+```
+
+##### **Merge** 
+
+```{r}
+state_mapping <- left_join(state_data, state_mapping,  by = "region")
+glimpse(state_mapping)
+```
+
+```{r}
+state_sales <- merge(sales, state_mapping, sort=F)
+```
+```{r}
+glimpse(sales)
+```
+
+
+# Exploration
+### Missing values
+
+**Percentage of values missing from each column**
+
+```{r}
+map_dbl(sales, function(x) sum(is.na(x))/nrow(sales)) %>% sort
+```
+
+### Unique values
+**Number of unique values in each column**
+
+```{r}
+map_dbl(sales, function(x) length(unique(x))) %>% sort
+```
+
+## **Graphs**
+
+### Distribution of sales Amount ($ shown for each sale/account)
+
+```{r, message=FALSE, warning=FALSE}
+ggplot(sales, aes(Amount)) + geom_histogram(binwidth=10)
+```
+
+
+### Number of sales by product
+```{r}
+ggplot(sales, aes(Product)) + geom_bar() + coord_flip()
+```
+
+### Sales volume by product (Amount)
+```{r}
+
+```
+
+
+### Number of sales by benefit
+
+```{r}
+ggplot(sales, aes(Benefit)) + geom_bar() + coord_flip()
+```
+
+### **STM Web Sales data  - Jan-Jun 2017**
+
+
+```{r, fig.height=15, warning=FALSE}
+melted_website <- melt(website, id.vars = "Date")
+
+web_series <- melted_website %>%
+  filter(Date != "2017-01-31") %>%
+  ggplot(aes(x=Date, y=value)) + geom_line() + geom_smooth() + facet_grid(variable~., scales = "free_y")
+web_series
+```
+
+### Web Sales Y variable scatter plots
+```{r}
+website %>% 
+  filter(Date != "2017-01-31") %>%
+  ggplot(aes(Sessions, `Total Web Sales`)) + geom_point() + geom_smooth()
+```
+
+```{r}
+website %>% 
+  filter(Date != "2017-01-31") %>%
+  ggplot(aes(Users, `Total Web Sales`)) + geom_point() + geom_smooth()
+```
+
+```{r}
+website %>% 
+  filter(Date != "2017-01-31") %>%
+  ggplot(aes(Pageviews, `Total Web Sales`)) + geom_point() + geom_smooth()#
+```
+
+```{r}
+website %>% 
+  filter(Date != "2017-01-31") %>%
+  ggplot(aes(`Pages/ Session`, `Total Web Sales`)) + geom_point() + geom_smooth()
+```
+
+
+## Sales by state
+
+```{r}
+sales$State %>% table %>% sort(decreasing=T) %>% data.frame
+```
+
+
+## Inactive accounts
+
+This could be an area where we provide more value than just reporting. Maybe some of these inactivities/cancellations can be controlled/reduced?
+
+These columns **Date Inactive** and **Inactive Reason** are usually both filled out together
+```{r}
+table(is.na(sales$`Date Inactive`) == is.na(sales$`Inactive Reason`))
+```
+
+### Top reasons for account inactivity
+
+```{r}
+table(sales$`Inactive Reason`) %>% sort(decreasing=T) %>% data.frame %>% head(10)
+```
+
+# **Candidate graphs for reporting**
+
+This section contains graphs they can potentially be interested in based on the other sheets they created in the Excel file. 
+
+* Sales by state
+* Sales by month
+* Sales by product
+* Monthly, daily sales
+
+
+## Sales ($) by month
+
+**The data is from 12/2016 - 07/2017**
+
+```{r}
+sales %>%
+  group_by(month_created, Product) %>%
+  summarise(total_amount = sum(Amount, na.rm = T)) %>%
+  ggplot(aes(x=month_created, y=total_amount, fill=Product)) + geom_bar(stat="identity")
+```
+
+## Sales ($) by week (more granular)
+
+```{r}
+week_sales <- sales %>%
+  group_by(week_created, Product) %>%
+  summarise(total_amount = sum(Amount, na.rm = T)) %>%
+  ggplot(aes(x=week_created, y=total_amount, fill=Product)) + geom_bar(stat="identity")
+week_sales
+```
+
+## Number of sales/accounts by week
+
+```{r}
+sales %>%
+  group_by(week_created, Product) %>%
+  summarise(total_count = sum(Count, na.rm = T)) %>%
+  ggplot(aes(x=week_created, y=total_count, fill=Product)) + geom_bar(stat="identity")
+```
+
+## Sales ($) by state for June (not working yet)
+
+```{r}
+st <- state_sales %>%
+  group_by(region, lat, long, group) %>%
+  summarise(total_amount = sum(Amount, na.rm = T))
+
+ggplot(st, aes(long, lat)) + geom_polygon(aes(group=group, fill=total_amount)) +
+  geom_path(colour="grey50")
+```
+
+## States as a proportion of TOTAL sales/accounts over time 
+```{r, message=FALSE, warning=FALSE}
+ggplot(sales) + geom_bar(mapping=aes(as.character(month_created), fill = State), position = "fill") + theme(axis.text.x = element_text(angle = 45))
+```
+
+# Notes, impressions
+
+## Source information
+
+There appear to be **3 main sources** of data that are in the combined sales summary
+
+```{r}
+# get sheet names from excel file
+readxl::excel_sheets("2017 Sales Summary.xlsx")
+```
+
+These 3 sources are **Adroit Sales Summary**, **Asst Agencies**, and **STM Web Sales Summary**. They get added together to calculate totals in the **Combined Sales Summary** sheet. I initially thought that the **Raw Data From Adroit** sheet populated the 3 main sources but some simple checking has shown me that the numbers are off - Specifically i found that there are less entries for plans in Texas in the raw data (244) compared to the combined sales summary (300).
+
+### Web data outlier on 1/31/2017
+
+
+Removed Web data outlier on 1/31/2017 to better see overall trend of web sales indicators. 
+
+Here are the graphs with the outlier put back 
+
+```{r, fig.height=10}
+melted_website %>% 
+  filter(variable %in% c("Date","Total Web Sales", "Sessions","Users","Pageviews")) %>%
+  ggplot(aes(x=Date, y=value)) + geom_line() + geom_smooth() + facet_grid(variable~., scales = "free_y")
+```
+
