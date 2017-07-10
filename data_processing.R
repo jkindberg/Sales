@@ -105,6 +105,9 @@ adroit <- read_excel(paste0(data_dir,
 
 adroit <- proc_data(adroit)
 
+#' Remove summary columns for now
+adroit <- adroit %>% select(-`Net Inforce`, -`Coverage Term'd`)
+
 #' ### **Asst Agencies Tab**
 asst <- read_excel(paste0(data_dir,
                           "2017 Sales Summary.xlsx"),
