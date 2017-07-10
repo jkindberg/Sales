@@ -1,4 +1,4 @@
----
+g---
 title: "sales data EDA"
 output:
   html_document:
@@ -87,6 +87,24 @@ sales$month_active <- as.Date(cut(sales$Active,
 
 
 ```
+
+### 3x4 vs non column
+```{r}
+table(sales$Product)
+```
+
+```{r}
+sales$three_four <- ifelse(grepl("3x4", sales$Product),
+                          "3x4", "Regular")
+sales$product_level <- ifelse(grepl("Deluxe", sales$Product),
+                             "Deluxe",
+                             ifelse(grepl("Choice", sales$Product),
+                                    "Choice", 
+                                    ifelse(grepl("Economy", sales$Product),
+                                                 "Economy", "Standard")))
+                                                     
+```
+
 
 ### Count column for aggregation
 
