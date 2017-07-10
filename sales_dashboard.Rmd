@@ -6,13 +6,17 @@ output:
     vertical_layout: fill
 ---
 
-```{r setup, include=FALSE}
+```{r c8 setup, include=FALSE}
 library(flexdashboard)
 library(knitr)
 library(DT)
+<<<<<<< HEAD
+=======
+library(tidyverse)
+>>>>>>> development
 ```
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r c7, message=FALSE, warning=FALSE, include=FALSE}
 knit("sales_eda.Rmd")
 ```
 
@@ -32,7 +36,7 @@ Column {data-width=600}
 
 ### Chart A
 
-```{r}
+```{r c6}
 library(highcharter)
 library(viridisLite)
 
@@ -73,7 +77,7 @@ highchart() %>%
 
 ### Chart B
 
-```{r}
+```{r c9}
 library(plotly)
 ggplotly(week_sales)
 ```
@@ -84,7 +88,7 @@ Column {.tabset data-width=400}
 
 ### Chart C
 
-```{r}
+```{r c2}
 
 ggplotly(web_series)
 ```
@@ -92,7 +96,11 @@ ggplotly(web_series)
 
 ### Chart D
 
+<<<<<<< HEAD
 ```{r}
+=======
+```{r c3}
+>>>>>>> development
 datatable(website)
 ```
 
@@ -102,9 +110,38 @@ View2
 =======================================================================
 
 ### Chart E
-```{r}
+```{r c4}
 website %>% 
   filter(Date != "2017-01-31") %>%
   hchart("scatter", hcaes(x=Users, `Total Web Sales`))
 ```
 
+### Chart 
+
+```{r c5}
+products <- sales %>%
+            group_by(product_level, three_four) %>%
+            summarize(count = n())
+
+categories_grouped <- products %>% 
+  group_by(name = three_four) %>% 
+  do(categories = .$product_level) %>%
+  list_parse()
+
+
+#highchart() %>%
+ # hc_add_series(data = products, type = "bar",
+  #              hcaes(y = count, 
+   #                   group = product_level),
+    #            showInLegend = TRUE) %>%
+    #hc_xAxis(categories = categories_grouped) %>%
+  #hc_add_theme(hc_theme_economist())
+pt <- ggplot(products, aes(factor(product_level), count, fill = three_four)) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1") + coord_flip() 
+
+ggplotly(pt)
+```
+
+View3
+=======================================================================
