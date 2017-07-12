@@ -1,0 +1,65 @@
+---
+title: "Sales Dashboard Prototype"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r c8 setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(DT)
+library(tidyverse)
+library(plotly)
+```
+
+```{r c7, message=FALSE, warning=FALSE, include=FALSE}
+source("data_processing.R")
+```
+
+Sidebar {.sidebar}
+=======================================================================
+
+### This is a sidebar
+
+This is a sidebar that can have buttons or filters
+
+Web Sales
+=======================================================================
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Chart D
+
+### Chart E
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Chart F
+
+
+### Chart G
+
+Adroit Sales
+=======================================================================
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Chart H
+
+### Chart I
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Chart J
+
+
+### Chart K
+
+Assistant Agencies
+=======================================================================

@@ -1,9 +1,10 @@
 ---
-title: "Sales Dashboard"
+title: "Sales Dashboard Prototype"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
+runtime: shiny
 ---
 
 ```{r c8 setup, include=FALSE}
@@ -12,129 +13,161 @@ library(knitr)
 library(DT)
 library(tidyverse)
 library(plotly)
+library(shiny)
 ```
 
 ```{r c7, message=FALSE, warning=FALSE, include=FALSE}
-knit("sales_eda.Rmd")
+source("data_processing.R")
 ```
 
 Sidebar {.sidebar}
 =======================================================================
 
-### This is a sidebar
+This dashboard displays Pivot Health's sales data with a collection of clickable tabs and visualizations. 
 
-This is a sidebar that can have buttons or filters
+-----------------------
 
-View1
+Below are filters that drive the visualizations in each of the tabs:
+
+```{r}
+selectInput("duration", label = h4("Select Plan Duration:"), choices = list("All"=1,"Yearly"=2, "90 Day"=3), selected=1)
+```
+
+```{r}
+selectInput("plan", label = h4("Select Plan Type:"), choices = list("All"=1,"Economy"=2, "Standard"=3, "Deluxe"=4, "Choice" = 5), selected =1)
+```
+
+```{r}
+floor <- min(plan_table$Date)
+ceiling <- max(plan_table$Date)
+
+dateRangeInput("trend", label = h4("Select date range:"),
+               start = floor,
+               end = ceiling,
+               min = floor,
+               max = ceiling)
+```
+
+
+
+Web Sales
 =======================================================================
 
 
-Column {data-width=600}
+Column {data-width=400}
 -----------------------------------------------------------------------
 
-### Chart A
-
-```{r c6}
-library(highcharter)
-library(viridisLite)
-
-thm <- 
-  hc_theme(
-    colors = c("#1a6ecc", "#434348", "#90ed7d"),
-    chart = list(
-      backgroundColor = "transparent",
-      style = list(fontFamily = "Source Sans Pro")
-    ),
-    xAxis = list(
-      gridLineWidth = 1
-    )
+### {.value-box}
+```{r}
+#renderValueBox({
+  valueBox(
+    value = paste("Web Sales Snapshot", "-", "July 2, 2017")
+    #caption = h4("The graphs below show the current snapshot of web sales by product"),
+    #icon = "fa-area-chart"
   )
-
-data("USArrests", package = "datasets")
-data("usgeojson")
-
-USArrests <- USArrests %>%
-  mutate(state = rownames(.))
-
-n <- 4
-colstops <- data.frame(
-  q = 0:n/n,
-  c = substring(viridis(n + 1), 0, 7)) %>%
-  list.parse2()
-
-highchart() %>%
-  hc_add_series_map(usgeojson, USArrests, name = "Sales",
-                    value = "Murder", joinBy = c("woename", "state"),
-                    dataLabels = list(enabled = TRUE,
-                                      format = '{point.properties.postalcode}')) %>%
-  hc_colorAxis(stops = colstops) %>%
-  hc_legend(valueDecimals = 0, valueSuffix = "%") %>%
-  hc_mapNavigation(enabled = TRUE) %>%
-  hc_add_theme(thm)
-```
-
-### Chart B
-
-```{r c9}
-library(plotly)
-ggplotly(week_sales)
+#})
 ```
 
 
-Column {.tabset data-width=400}
+### 
+
+```{r}
+latest_day <- max(web_plans$Date)
+
+
+g1 <- plan_table %>%
+      filter(Date == latest_day &
+             Tab == "web") %>%
+      ggplot(aes(x = Plan, y = Sales, fill = Plan)) + geom_bar(stat="identity", colour = "#1e1e1e") + scale_fill_brewer() + coord_flip() + theme(panel.background = element_rect(fill = "#BEC2C4")) + scale_x_discrete() + ggtitle("Web sales by product - 07/02/2017")
+ggplotly(g1)
+```
+
+
+
+### 
+
+```{r}
+g1 <- plan_table %>%
+      filter(months(Date) == months(latest_day) & 
+             Tab == "web") %>%
+      ggplot(aes(x = Plan, y = Sales, fill = Plan)) + geom_bar(stat="identity", colour = "#1e1e1e") + scale_fill_brewer() + coord_flip() + theme(panel.background = element_rect(fill = "#BEC2C4")) + ggtitle("Web sales by product - month of July 2017")
+
+ggplotly(g1)
+```
+
+
+Column {data-width=400}
 -----------------------------------------------------------------------
 
-### Chart C
+### {.value-box}
+```{r}
+#renderValueBox({
+  valueBox(
+    value = "Web Sales by State - YTD"
+  )
+#})
+```
 
-```{r c2}
-ggplotly(web_series)
+### 
+
+```{r}
+crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
+crimesm <- tidyr::gather(crimes, variable, value, -state)
+states_map <- map_data("state")
+g <- ggplot(crimesm, aes(map_id = state)) +
+  geom_map(aes(fill = value), map = states_map) +
+  expand_limits(x = states_map$long, y = states_map$lat) + theme_void() 
+ggplotly(g)
 ```
 
 
-### Chart D
 
-```{r c3}
-datatable(website)
+### {.value-box}
+```{r}
+#renderValueBox({
+  valueBox(
+    value = "Web sales over time by product"
+  )
+#})
+```
+
+
+### 
+
+```{r}
+plans_expanded <- data.frame(
+  Date = rep(plan_table$Date, plan_table$Sales),
+  Plan = rep(plan_table$Plan, plan_table$Sales),
+  Duration = rep(plan_table$Duration, plan_table$Sales),
+  Tab = rep(plan_table$Tab, plan_table$Sales)
+)
+
+g1 <- plans_expanded %>%
+      filter(Tab == "web") %>%
+      ggplot(aes(x = Date, fill = Plan)) + scale_fill_brewer() + geom_area(stat="bin", colour = "#1e1e1e")  + theme(panel.background = element_rect(fill = "#BEC2C4")) 
+ggplotly(g1)
 ```
 
 
 
-View2
+
+Adroit Sales
 =======================================================================
 
-### Chart E
-```{r c4}
-website %>% 
-  filter(Date != "2017-01-31") %>%
-  hchart("scatter", hcaes(x=Users, `Total Web Sales`))
-```
+Column {data-width=400}
+-----------------------------------------------------------------------
 
-### Chart 
+### Chart H
 
-```{r c5}
-products <- sales %>%
-            group_by(product_level, three_four) %>%
-            summarize(count = n())
+### Chart I
 
-categories_grouped <- products %>% 
-  group_by(name = three_four) %>% 
-  do(categories = .$product_level) %>%
-  list_parse()
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Chart J
 
 
-#highchart() %>%
- # hc_add_series(data = products, type = "bar",
-  #              hcaes(y = count, 
-   #                   group = product_level),
-    #            showInLegend = TRUE) %>%
-    #hc_xAxis(categories = categories_grouped) %>%
-  #hc_add_theme(hc_theme_economist())
-pt <- ggplot(products, aes(factor(product_level), count, fill = three_four)) + 
-  geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set1") + coord_flip() 
+### Chart K
 
-ggplotly(pt)
-```
-
-View3
+Assistant Agencies
 =======================================================================
