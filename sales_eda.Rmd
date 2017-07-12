@@ -18,11 +18,13 @@ library(maps)
 
 ```{r}
 # load raw data sheet
-sales <- read_excel("2017 Sales Summary.xlsx",
+data_dir <- "C:/Users/Warner/Desktop/Big Deal/Pivot Health/"
+
+sales <- read_excel(paste0(data_dir,"2017 Sales Summary.xlsx"),
                     sheet = "Raw Data From Adroit")
 
 # web sales data sheet
-web <- read_excel("2017 Sales Summary.xlsx",
+web <- read_excel(paste0(data_dir, "2017 Sales Summary.xlsx"),
                   sheet = "STM Web Sales Summary",
                   col_names = F)
 ```
@@ -321,7 +323,177 @@ There appear to be **3 main sources** of data that are in the combined sales sum
 
 ```{r}
 # get sheet names from excel file
-readxl::excel_sheets("2017 Sales Summary.xlsx")
+readxl::excel_sheets(paste0(data_dir, "2017 Sales Summary.xlsx"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
 These 3 sources are **Adroit Sales Summary**, **Asst Agencies**, and **STM Web Sales Summary**. They get added together to calculate totals in the **Combined Sales Summary** sheet. I initially thought that the **Raw Data From Adroit** sheet populated the 3 main sources but some simple checking has shown me that the numbers are off - Specifically i found that there are less entries for plans in Texas in the raw data (244) compared to the combined sales summary (300).

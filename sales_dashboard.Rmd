@@ -10,14 +10,8 @@ output:
 library(flexdashboard)
 library(knitr)
 library(DT)
-<<<<<<< HEAD
 library(tidyverse)
-=======
-<<<<<<< HEAD
-=======
-library(tidyverse)
->>>>>>> development
->>>>>>> 0409fe4049bea5e35b23ebe01de3ca745dc9c86d
+library(plotly)
 ```
 
 ```{r c7, message=FALSE, warning=FALSE, include=FALSE}
@@ -93,22 +87,13 @@ Column {.tabset data-width=400}
 ### Chart C
 
 ```{r c2}
-
 ggplotly(web_series)
 ```
 
 
 ### Chart D
 
-<<<<<<< HEAD
 ```{r c3}
-=======
-<<<<<<< HEAD
-```{r}
-=======
-```{r c3}
->>>>>>> development
->>>>>>> 0409fe4049bea5e35b23ebe01de3ca745dc9c86d
 datatable(website)
 ```
 

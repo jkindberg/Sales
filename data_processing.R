@@ -14,69 +14,12 @@ data_dir <- "C:/Users/Warner/Desktop/Big Deal/Pivot Health/"
 #' ### Load packages and read data
 library(tidyverse)
 library(readxl)
-library(reshape2)
 
-#' ### **Data processing function**
-#' This function is used to convert the 3 main excel tabs
-#' to dataframes for R. It is highly dependent on how the
-#' spreadsheet is organized/structured currently
-proc_data <- function(data){
-  data[is.na(data)] <- 0
-  names(data) <- data[2,] %>% unlist
-  names(data)[names(data)=="0"] <- unlist(data[1,])[names(data)=="0"]
-  
-  data <- data[-(1:2),]
-  
-  #' Date column needs to be cleaned up
-  data$Date <- as.numeric(data$Date)
-  data <- data[!is.na(data$Date),]
-  
-  data$Date <- as.Date(data$Date,
-                       origin = "1899-12-30")
-  
-  if('0' %in% names(data)){
-    data <- data %>% select(-TOTALS, -`0`, -TOTAL)
-  } else{
-    names(data)[duplicated(names(data))] <- paste(names(data)[duplicated(names(data))], "4 x 3")
-    
-    data <- data %>% select(-TOTALS, -TOTAL)
-    
-  }
-  
-  melt_cols1 <- names(data)[!(names(data) %in% states$Abbreviation)]
-  data <- melt(data, id.vars = melt_cols1)
-  
-  data <- data %>%
-    filter(value != 0) %>%
-    select(-value)
-  names(data)[names(data)=="variable"] <- "State"
-  names(data) <- trimws(names(data))
-  
-  # should be a better way to do this
-  fuck_it <- c(grep("Deluxe", names(data)),
-               grep("Standard", names(data)),
-               grep("Economy", names(data)),
-               grep("Choice", names(data)))
-  
-  data <- melt(data, id.vars = names(data)[-fuck_it])
-  data <- data %>%
-    filter(value != 0) %>%
-    select(-value)
-  names(data)[names(data)=="variable"] <- "Plan"
-  #' **Plan duration column - a flag for yearly or 90 day
-  data$Duration <- ifelse(grepl("4 x 3", data$Plan),
-                               "Yearly", "90 Day")
-  
-  #' clean up plan column now that duration flag exists
-  data$Plan <- gsub("4 x 3", "", data$Plan) %>% trimws
-  
-  data
-}
 
 #' State file for use later
 states <- read_csv("states.csv")
 
-#' ### **STM Web Sales Summary Tab**
+#' ### **Extract data from STM Web Sales Summary Tab**
 ### Web data needs reformatting to be a dataframe
 # web sales data sheet
 web <- read_excel(paste0(data_dir,
@@ -86,42 +29,194 @@ web <- read_excel(paste0(data_dir,
 
 #' Web data should be split to 2 tables:
 #' Daily site activity and daily websales by state
-web <- proc_data(web)
+web[is.na(web)] <- 0
+names(web) <- web[2,] %>% unlist
+names(web)[names(web)=="0"] <- unlist(web[1,])[names(web)=="0"]
 
-#' #### **Web Sales table**
-web_sales <- web %>%
-             select(Date, State, Plan, Duration)
+web <- web[-(1:2),]
 
-#' #### **Web traffic table**
-web_traffic <- web %>%
-               select(-State, -Plan)
+web <- web %>% select(-TOTALS, -`0`, -TOTAL)
+
+#' Date column needs to be cleaned up
+web$Date <- as.numeric(web$Date)
+web <- web[!is.na(web$Date),]
+
+web$Date <- as.Date(web$Date,
+                     origin = "1899-12-30")
 
 
-#' ### **Adroit Sales Summary Tab**
+#' **Create website table by year**
+state_cols <- names(web)[(names(web) %in% states$Abbreviation)]
+
+web_state <- web %>% 
+             select_(.dots = c("Date",state_cols))
+
+#' Table before melt
+glimpse(web_state)
+
+#' gather/melt to long format
+web_state <- web_state %>%
+             gather_(key = "State",
+                     value = "Sales",
+                     state_cols)
+
+#' Table after melt
+glimpse(web_state)
+
+#' Final touches to web states data
+web_state$Sales <- as.numeric(web_state$Sales)
+web_state <- web_state %>%
+             filter(Sales != 0) %>%
+             mutate(Tab = "web") %>%# new col
+             arrange(Date) #sort 
+  
+
+#' **Create table for plan by year**
+#' 
+#' To mitigate dplyr select issue
+names(web) <- gsub("4 x 3", "Yearly", names(web))
+
+plan_cols <- names(web)[!(names(web) %in% state_cols)]
+
+
+web_plans <- web[plan_cols]
+
+#' create web_traffic table
+web_traffic <- web_plans[10:16]
+
+#' Web sales table
+web_plans <- web_plans[1:9]
+  
+web_plans[-1] <- map(web_plans[-1], as.numeric)
+     
+#' Table before melt
+glimpse(web_plans)
+
+#' Melt/gather
+plan_cols2 <- names(web_plans)[names(web_plans) != "Date"]
+web_plans <- web_plans %>%
+             gather_(key = "Plan",
+                     value = "Sales",
+                     plan_cols2)
+
+#' table after melt
+glimpse(web_plans)
+
+#' Final touches to web states data
+web_plans <-  web_plans %>%
+              filter(Sales != 0) %>%
+              mutate(Tab = "web") %>%# new col
+              arrange(Date) #sort 
+
+
+#' **Plan duration column - a flag for yearly or 90 day
+web_plans$Duration <- ifelse(grepl("Yearly", web_plans$Plan),
+                             "Yearly", "90 Day")
+
+#' ----------------------------------------------
+
+#' ### **Extract data from Adroit sales tab *** 
 adroit <- read_excel(paste0(data_dir,
-                            "2017 Sales Summary.xlsx"),
+                     "2017 Sales Summary.xlsx"),
                      sheet = "Adroit Sales Summary",
                      col_names = F)
 
-adroit <- proc_data(adroit)
+adroit[is.na(adroit)] <- 0
+names(adroit) <- adroit[2,] %>% unlist
+names(adroit)[names(adroit)=="0"] <- unlist(adroit[1,])[names(adroit)=="0"]
 
-#' Remove summary columns for now
-adroit <- adroit %>% select(-`Net Inforce`, -`Coverage Term'd`)
+adroit <- adroit[-(1:2),]
 
-#' ### **Asst Agencies Tab**
-asst <- read_excel(paste0(data_dir,
-                          "2017 Sales Summary.xlsx"),
-                   sheet = "Asst Agencies",
-                   col_names = F)
+names(adroit)[duplicated(names(adroit))] <- 
+  paste(names(adroit)[duplicated(names(adroit))], "Yearly")
 
-agencies <- asst[1,] %>% unlist 
-agencies <- agencies[!is.na(agencies)]
-agencies <- agencies[-c(length(agencies), 
-                        length(agencies)-1)]
-agencies <- rep(agencies, each = 4)
+adroit <- adroit %>% select(-TOTALS, -TOTAL)
 
 
-#' Write flat files
-write_csv(web_sales, paste0(data_dir, "web_sales.csv"))
-write_csv(web_traffic, paste0(data_dir, "web_traffic.csv"))
-write_csv(adroit, paste0(data_dir, "adroit_sales.csv"))
+#' Date column needs to be cleaned up
+adroit$Date <- as.numeric(adroit$Date)
+adroit <- adroit[!is.na(adroit$Date),]
+
+adroit$Date <- as.Date(adroit$Date,
+                    origin = "1899-12-30")
+
+
+#' **Create adroitsite table by year**
+state_cols <- names(adroit)[(names(adroit) %in% states$Abbreviation)]
+
+adroit_state <- adroit %>% 
+  select_(.dots = c("Date",state_cols))
+
+#' Table before melt
+glimpse(adroit_state)
+
+#' gather/melt to long format
+adroit_state <- adroit_state %>%
+                gather_(key = "State",
+                value = "Sales",
+                state_cols)
+
+#' Table after melt
+glimpse(adroit_state)
+
+#' Final touches to adroit states data
+adroit_state$Sales <- as.numeric(adroit_state$Sales)
+adroit_state <- adroit_state %>%
+                filter(Sales != 0) %>%
+                mutate(Tab = "adroit") %>%# new col
+                arrange(Date) #sort 
+
+
+#' **Create table for plan by year**
+#' 
+#' To mitigate dplyr select issue
+names(adroit) <- gsub("4 x 3", "Yearly", names(adroit))
+
+plan_cols <- names(adroit)[!(names(adroit) %in% state_cols)]
+
+
+adroit_plans <- adroit[plan_cols]
+
+
+adroit_plans[-1] <- map(adroit_plans[-1], as.numeric)
+
+#' Table before melt
+glimpse(adroit_plans)
+
+#' Melt/gather
+plan_cols2 <- names(adroit_plans)[names(adroit_plans) != "Date"]
+adroit_plans <- adroit_plans %>%
+                gather_(key = "Plan",
+                value = "Sales",
+                plan_cols2)
+
+#' table after melt
+glimpse(adroit_plans)
+
+#' Final touches to adroit states data
+adroit_plans <-  adroit_plans %>%
+                 filter(Sales != 0) %>%
+                 mutate(Tab = "adroit") %>%# new col
+                 arrange(Date) #sort 
+
+
+#' **Plan duration column - a flag for yearly or 90 day
+adroit_plans$Duration <- ifelse(grepl("Yearly", adroit_plans$Plan),
+                             "Yearly", "90 Day")
+
+#' Remove these for now until interpretation makes sense
+adroit_plans <- adroit_plans %>%
+                filter(!(Plan %in% c("Coverage Term'd","Net Inforce")))
+
+#' ### **Join Adroit and Sales data together as state and plan tables
+plan_table <- full_join(adroit_plans, web_plans)
+state_table <- full_join(adroit_state, web_state)
+
+
+#' ----------------------------------------------
+
+#' ### **Extract data from Asst Agencies tab *** 
+web <- read_excel(paste0(data_dir,
+                         "2017 Sales Summary.xlsx"),
+                  sheet = "Asst Agencies",
+                  col_names = F)

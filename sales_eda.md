@@ -1,4 +1,4 @@
----
+g---
 title: "sales data EDA"
 output:
   html_document:
@@ -282,20 +282,12 @@ $ region          <chr> "Pennsylvania", "Arizona", "Pennsylvania", "Ar...
 ### Distribution of sales Amount ($ shown for each sale/account)
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-24-1.png" width="576" data-figure-id=fig1 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-20-1.png" width="576" data-figure-id=fig1 />
->>>>>>> development
 
 
 ### Number of sales by product
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-25-1.png" width="576" data-figure-id=fig2 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-21-1.png" width="576" data-figure-id=fig2 />
->>>>>>> development
 
 ### Sales volume by product (Amount)
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
@@ -305,32 +297,12 @@ $ region          <chr> "Pennsylvania", "Arizona", "Pennsylvania", "Ar...
 ### Number of sales by benefit
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-27-1.png" width="576" data-figure-id=fig3 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-23-1.png" width="576" data-figure-id=fig3 />
->>>>>>> development
 
 ### **STM Web Sales data  - Jan-Jun 2017**
 
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="1440"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-28-1.png" width="576" data-figure-id=fig4 />
-
-### Web Sales Y variable scatter plots
-<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-29-1.png" width="576" data-figure-id=fig5 />
-
-<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-30-1.png" width="576" data-figure-id=fig6 />
-
-<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-31-1.png" width="576" data-figure-id=fig7 />
-
-<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-32-1.png" width="576" data-figure-id=fig8 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-24-1.png" width="576" data-figure-id=fig4 />
 
 ### Web Sales Y variable scatter plots
@@ -345,7 +317,6 @@ $ region          <chr> "Pennsylvania", "Arizona", "Pennsylvania", "Ar...
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-28-1.png" width="576" data-figure-id=fig8 />
->>>>>>> development
 
 
 ## Sales by state
@@ -438,46 +409,26 @@ This section contains graphs they can potentially be interested in based on the 
 **The data is from 12/2016 - 07/2017**
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-36-1.png" width="576" data-figure-id=fig9 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-32-1.png" width="576" data-figure-id=fig9 />
->>>>>>> development
 
 ## Sales ($) by week (more granular)
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-37-1.png" width="576" data-figure-id=fig10 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-33-1.png" width="576" data-figure-id=fig10 />
->>>>>>> development
 
 ## Number of sales/accounts by week
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-38-1.png" width="576" data-figure-id=fig11 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-34-1.png" width="576" data-figure-id=fig11 />
->>>>>>> development
 
 ## Sales ($) by state for June (not working yet)
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-39-1.png" width="576" data-figure-id=fig12 />
-
-## States as a proportion of TOTAL sales/accounts over time 
-<div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-40-1.png" width="576" data-figure-id=fig13 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-35-1.png" width="576" data-figure-id=fig12 />
 
 ## States as a proportion of TOTAL sales/accounts over time 
 <div class="knitr-options" data-fig-width="576" data-fig-height="460"></div>
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-36-1.png" width="576" data-figure-id=fig13 />
->>>>>>> development
 
 # Notes, impressions
 
@@ -508,9 +459,5 @@ Removed Web data outlier on 1/31/2017 to better see overall trend of web sales i
 Here are the graphs with the outlier put back 
 
 <div class="knitr-options" data-fig-width="576" data-fig-height="960"></div>
-<<<<<<< HEAD
-<img src="sales_dashboard_files/figure-html/unnamed-chunk-42-1.png" width="576" data-figure-id=fig14 />
-=======
 <img src="sales_dashboard_files/figure-html/unnamed-chunk-38-1.png" width="576" data-figure-id=fig14 />
->>>>>>> development
 
